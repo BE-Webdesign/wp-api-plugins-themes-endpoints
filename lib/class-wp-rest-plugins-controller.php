@@ -43,13 +43,11 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 	 * @return WP_Error|boolean
 	 */
 	public function get_items_permissions_check( $request ) {
-
-		if ( ! current_user_can( 'manage_options' ) ) { // TODO: Something related to plugins. activate_plugin capability seems to not be available for multi-site superadmin (?)
+		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		return true;
-
 	}
 
 	public function get_items( $request ) {
@@ -76,13 +74,11 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 	 * @return WP_Error|boolean
 	 */
 	public function get_item_permissions_check( $request ) {
-
-		if ( ! current_user_can( 'manage_options' ) ) { // TODO: Something related to plugins. activate_plugin capability seems to not be available for multi-site superadmin (?)
+		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Sorry, you do not have access to this resource' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		return true;
-
 	}
 
 	public function get_item( $request ) {

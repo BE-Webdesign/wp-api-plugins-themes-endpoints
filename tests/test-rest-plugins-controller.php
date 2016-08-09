@@ -9,6 +9,10 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 		$this->admin_id = $this->factory->user->create( array(
 			'role' => 'administrator',
 		) );
+
+		$this->subscriber = $this->factory->user->create( array(
+			'role' => 'subscriber',
+		) );
 	}
 
 	public function test_register_routes() {
@@ -27,6 +31,11 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
 
+		wp_set_current_user( $this->subscriber );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
 	}
 
 	public function test_context_param() {
@@ -52,6 +61,22 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->check_get_plugins_response( $response, 'view' );
+	}
+
+	public function test_get_item_without_permissions() {
+		wp_set_current_user( 0 );
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/plugins/hello-dolly' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
+
+		wp_set_current_user( $this->subscriber );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
 	}
 
 	public function test_create_item() {
@@ -97,6 +122,12 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
+
+		wp_set_current_user( $this->subscriber );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
 	}
 
 	protected function check_get_plugins_response( $response, $context = 'view' ) {
