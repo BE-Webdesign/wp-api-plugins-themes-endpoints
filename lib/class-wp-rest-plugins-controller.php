@@ -43,8 +43,19 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 	 * @return WP_Error|boolean
 	 */
 	public function get_items_permissions_check( $request ) {
-		if ( ! current_user_can( 'activate_plugins' ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+		if ( is_multisite() ) {
+			$menu_permissions = get_site_option( 'menu_items' );
+			// Check if the user cannot manage network plugins but site admins have access to
+			if ( ! current_user_can( 'manage_network_plugins' ) && ! isset( $menu_permissions['plugins'] ) && '1' !== $menu_permissions['plugins'] ) {
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view plugins.', 'be-rest-endpoints' ), array( 'status' => rest_authorization_required_code() ) );
+			}
+			if ( isset( $menu_permissions['plugins'] ) && '1' === $menu_permissions['plugins'] && ! current_user_can( 'activate_plugins' ) ) {
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+			}
+		} else {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+			}
 		}
 
 		return true;
@@ -74,8 +85,19 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 	 * @return WP_Error|boolean
 	 */
 	public function get_item_permissions_check( $request ) {
-		if ( ! current_user_can( 'activate_plugins' ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you do not have access to this resource' ), array( 'status' => rest_authorization_required_code() ) );
+		if ( is_multisite() ) {
+			$menu_permissions = get_site_option( 'menu_items' );
+			// Check if the user cannot manage network plugins but site admins have access to
+			if ( ! current_user_can( 'manage_network_plugins' ) && ! isset( $menu_permissions['plugins'] ) && '1' !== $menu_permissions['plugins'] ) {
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view plugins.', 'be-rest-endpoints' ), array( 'status' => rest_authorization_required_code() ) );
+			}
+			if ( isset( $menu_permissions['plugins'] ) && '1' === $menu_permissions['plugins'] && ! current_user_can( 'activate_plugins' ) ) {
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+			}
+		} else {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+			}
 		}
 
 		return true;
