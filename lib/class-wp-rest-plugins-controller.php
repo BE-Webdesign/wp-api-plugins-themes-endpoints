@@ -44,21 +44,29 @@ class WP_REST_Plugins_Controller extends WP_REST_Controller {
 	 */
 	public function get_items_permissions_check( $request ) {
 		if ( is_multisite() ) {
+			/**
+			 * The menu items option determines whether a site admin who is not
+			 * a super admin can work with plugins for their site. This is a
+			 * core feature. wp-admin\network\settings.php
+			 */
 			$menu_permissions = get_site_option( 'menu_items' );
-			// Check if the user cannot manage network plugins but site admins have access to
-			if ( ! current_user_can( 'manage_network_plugins' ) && ! isset( $menu_permissions['plugins'] ) && '1' !== $menu_permissions['plugins'] ) {
-				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view plugins.', 'be-rest-endpoints' ), array( 'status' => rest_authorization_required_code() ) );
-			}
-			if ( isset( $menu_permissions['plugins'] ) && '1' === $menu_permissions['plugins'] && ! current_user_can( 'activate_plugins' ) ) {
-				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+			// Check if the user cannot manage network plugins.
+			if ( current_user_can( 'manage_network_plugins' ) ) {
+				return true;
+			} else {
+				// Check if the plugins menu is active for site administators.
+				if ( isset( $menu_permissions['plugins'] ) && '1' === $menu_permissions['plugins'] && current_user_can( 'activate_plugins' ) ) {
+					return true;
+				}
 			}
 		} else {
-			if ( ! current_user_can( 'activate_plugins' ) ) {
-				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view the list of plugins' ), array( 'status' => rest_authorization_required_code() ) );
+			if ( current_user_can( 'activate_plugins' ) ) {
+				return true;
 			}
 		}
 
-		return true;
+		// White list approach. This does not follow rest endpoint conventions.
+		return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot view plugins.', 'be-rest-endpoints' ), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	public function get_items( $request ) {

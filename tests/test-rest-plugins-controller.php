@@ -64,8 +64,8 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 	 */
 	public function test_get_items_pagination_headers() {
 		// Skipped until more plugins are added into wordpress-develop repo.
+		$this->set_user_with_priviledges();
 
-		wp_set_current_user( $this->admin_id );
 		// One plugin installed by default.
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$request->set_param( 'per_page', 1 );
@@ -129,7 +129,7 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	public function test_get_items_per_page() {
-		wp_set_current_user( $this->admin_id );
+		$this->set_user_with_priviledges();
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$response = $this->server->dispatch( $request );
@@ -142,7 +142,7 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	public function test_get_items_page() {
-		wp_set_current_user( $this->admin_id );
+		$this->set_user_with_priviledges();
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$request->set_param( 'per_page', 1 );
@@ -159,7 +159,7 @@ class WP_Test_REST_Plugins_Controller extends WP_Test_REST_Controller_TestCase {
 	}
 
 	public function test_get_items_offset() {
-		wp_set_current_user( $this->admin_id );
+		$this->set_user_with_priviledges();
 
 		// 2 Plugins installed by default.
 		$request = new WP_REST_Request( 'GET', '/wp/v2/plugins' );
